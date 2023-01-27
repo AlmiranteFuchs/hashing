@@ -9,19 +9,18 @@
 #include <stdlib.h>
 
 // Simple dictionary?
-typedef struct {
-    int key;
+typedef struct
+{
     int value;
 } dict;
 
 // Hash table
-typedef struct {
+typedef struct
+{
     int size;
     dict **table;
-    void (*add)(struct hash_table *table, int key, int value);
+    //void (*add)(struct hash_table *table, int key, int value);
 } hash_table;
-
-
 
 // Create a new hash table
 hash_table *new_hash_table(int size);
@@ -29,6 +28,9 @@ hash_table *new_hash_table(int size);
 // Hash function
 int hash(int key, int size);
 int hash_2(int key, int size);
+int get_hash(hash_table *table, hash_table *table2, int key);
+void insert_hash(hash_table *table, hash_table *table2, int value);
 
+void print_hash(hash_table *table);
 
 #endif
