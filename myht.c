@@ -21,7 +21,14 @@ int main()
     {
         // Get the key and value in the line
         char *key = strtok(line, " ");
-        int value = atoi(strtok(NULL, ""));
+
+        char* value_tmp = strtok(NULL, "");
+        int value = 0;
+        if (value_tmp != NULL)
+        {
+            value = atoi(value_tmp);
+        }
+        printf("Key: %s, Value: %d\n", key, value);
 
         // See what command it is
         if (strcmp(key, "i") == 0)
@@ -33,6 +40,14 @@ int main()
         {
             // Delete the value from the hash table
             // delete (t1, t2, value);
+            remove_hash(t1, t2, value);
+        }
+        else if (strcmp(key, "p") == 0)
+        {
+            printf("T1:\n");
+            print_hash(t1);
+            printf("T2:\n");
+            print_hash(t2);
         }
         else
         {
@@ -40,11 +55,6 @@ int main()
             break;
         }
     }
-
-    printf("T1:\n");
-    print_hash(t1);
-    printf("T2:\n");
-    print_hash(t2);
 
     return 0;
 }

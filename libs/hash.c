@@ -25,7 +25,8 @@ hash_table *new_hash_table(int size)
     // Initialize all entries to NULL
     for (int i = 0; i < size; i++)
     {
-        table->table[i] = new_dict(NULL);
+        table->table[i] = new_dict(-1);
+        table->table[i]->table_name = NULL;
     }
 
     return table;
@@ -49,56 +50,80 @@ int get_hash(hash_table *table, hash_table *table2, int value)
     int hash_key = hash(value, table->size);
     int hash_2_key = hash_2(value, table->size);
 
-    // check if the key on the first table is empty
-    if (table->table[hash_key]->value == NULL)
-    {
-        // Key don't exist
-        printf("Key don't exist\n");
-        return NULL;
-    }
-
+    // check if the key on the second table is empty
     if (table->table[hash_key]->value == value)
     {
-        // Key found
-        printf("Key found on t1\n");
+        // Key don't exist
+        printf("Key exist\n");
         return hash_key;
     }
 
-    // else the key is in t2
-    // check if the key on the second table is empty
-    if (table2->table[hash_2_key]->value == NULL)
+    if (table2->table[hash_2_key]->value == value)
     {
         // Key don't exist
-        printf("Key don't exist in T2, this wasn't supposed to happen, something is very wrong, exiting now\n");
-        exit(1);
-        return NULL;
+        printf("Key exist\n");
+        return hash_2_key;
     }
-
-    printf("Key found on t2\n");
-    return hash_2_key;
+    printf("Key don't exist, get\n");
+    return -1;
 }
 
 void insert_hash(hash_table *table, hash_table *table2, int value)
 {
     int hash_key = hash(value, table->size);
-    int hash_2_key = hash_2(value, table->size);
 
     // check if the key on the first table is empty
-    if (table->table[hash_key]->value == NULL)
+    if (table->table[hash_key]->value == -1)
     {
         // Key don't exist
         printf("Key don't exist, inserting on t1\n");
         table->table[hash_key]->value = value;
+        table->table[hash_key]->table_name = "t1";
     }
     else
     {
+        // get value on t1
+        int old_value = table->table[hash_key]->value;
+        int old_hash_2_key = hash_2(old_value, table->size);
+
         // Key exist, copy value in t1 to t2
         printf("Key exist, inserting old value on t2\n");
-        table2->table[hash_2_key]->value = table->table[hash_key]->value;
+        table2->table[old_hash_2_key]->value = table->table[hash_key]->value;
+        table2->table[old_hash_2_key]->table_name = "t2";
 
         // Insert new value on t1
         table->table[hash_key]->value = value;
+        table->table[hash_key]->table_name = "t1";
     }
+    return;
+}
+
+void remove_hash(hash_table *table, hash_table *table2, int value)
+{
+    int hash_key = hash(value, table->size);
+    int hash_2_key = hash_2(value, table->size);
+
+    // check if the key on the second table is empty
+    if (table->table[hash_key]->value == value)
+    {
+        // Key don't exist
+        printf("Key exist\n");
+        table->table[hash_key]->value = -1;
+        table->table[hash_key]->table_name = NULL;
+
+        return;
+    }
+
+    if (table2->table[hash_2_key]->value == value)
+    {
+        // Key don't exist
+        printf("Key exist\n");
+        table2->table[hash_2_key]->value = -1;
+        table2->table[hash_2_key]->table_name = NULL;
+
+        return;
+    }
+    printf("Key don't exist, get\n");
     return;
 }
 
@@ -106,6 +131,25 @@ void print_hash(hash_table *table)
 {
     for (int i = 0; i < table->size; i++)
     {
-        printf("%d: %d\n", i, table->table[i]->value);
+        printf("%d: %d - %s\n", i, table->table[i]->value, table->table[i]->table_name);
     }
+}
+
+dict **get_ordered_hashs(hash_table *table, hash_table *table2)
+{
+    dict **ordered_hash = malloc(sizeof(dict *) * table->size * 2);
+
+    int j = 11;
+    for (int i = 0; i < table->size; i++)
+    {
+        ordered_hash[i] = table->table[i];
+    }
+
+    for (int i = 0; i < count; i++)
+    {
+        /* code */
+    }
+    
+
+    return ordered_hash;
 }

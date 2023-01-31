@@ -12,6 +12,7 @@
 typedef struct
 {
     int value;
+    char* table_name;
 } dict;
 
 // Hash table
@@ -19,7 +20,6 @@ typedef struct
 {
     int size;
     dict **table;
-    //void (*add)(struct hash_table *table, int key, int value);
 } hash_table;
 
 // Create a new hash table
@@ -30,6 +30,7 @@ int hash(int key, int size);
 int hash_2(int key, int size);
 int get_hash(hash_table *table, hash_table *table2, int key);
 void insert_hash(hash_table *table, hash_table *table2, int value);
+void remove_hash(hash_table *table, hash_table *table2, int value);
 
 void print_hash(hash_table *table);
 
