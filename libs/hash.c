@@ -26,6 +26,7 @@ hash_table *new_hash_table(int size)
     for (int i = 0; i < size; i++)
     {
         table->table[i] = new_dict(-1);
+        table->table[i]->key = i;
         table->table[i]->table_name = NULL;
     }
 
@@ -45,7 +46,7 @@ int hash_2(int key, int size)
     return floor(size * (key * 0.9 - floor(key * 0.9)));
 }
 
-int get_hash(hash_table *table, hash_table *table2, int value)
+dict *get_hash(hash_table *table, hash_table *table2, int value)
 {
     int hash_key = hash(value, table->size);
     int hash_2_key = hash_2(value, table->size);
@@ -53,19 +54,14 @@ int get_hash(hash_table *table, hash_table *table2, int value)
     // check if the key on the second table is empty
     if (table->table[hash_key]->value == value)
     {
-        // Key don't exist
-        printf("Key exist\n");
-        return hash_key;
+        return table->table[hash_key];
     }
 
     if (table2->table[hash_2_key]->value == value)
     {
-        // Key don't exist
-        printf("Key exist\n");
-        return hash_2_key;
+        return table2->table[hash_2_key];
     }
-    printf("Key don't exist, get\n");
-    return -1;
+    return NULL;
 }
 
 void insert_hash(hash_table *table, hash_table *table2, int value)
@@ -76,9 +72,9 @@ void insert_hash(hash_table *table, hash_table *table2, int value)
     if (table->table[hash_key]->value == -1)
     {
         // Key don't exist
-        printf("Key don't exist, inserting on t1\n");
         table->table[hash_key]->value = value;
-        table->table[hash_key]->table_name = "t1";
+        table->table[hash_key]->key = hash_key;
+        table->table[hash_key]->table_name = "T1";
     }
     else
     {
@@ -87,13 +83,14 @@ void insert_hash(hash_table *table, hash_table *table2, int value)
         int old_hash_2_key = hash_2(old_value, table->size);
 
         // Key exist, copy value in t1 to t2
-        printf("Key exist, inserting old value on t2\n");
         table2->table[old_hash_2_key]->value = table->table[hash_key]->value;
-        table2->table[old_hash_2_key]->table_name = "t2";
+        table2->table[old_hash_2_key]->key = old_hash_2_key;
+        table2->table[old_hash_2_key]->table_name = "T2";
 
         // Insert new value on t1
         table->table[hash_key]->value = value;
-        table->table[hash_key]->table_name = "t1";
+        table->table[hash_key]->key = hash_key;
+        table->table[hash_key]->table_name = "T1";
     }
     return;
 }
@@ -107,8 +104,8 @@ void remove_hash(hash_table *table, hash_table *table2, int value)
     if (table->table[hash_key]->value == value)
     {
         // Key don't exist
-        printf("Key exist\n");
         table->table[hash_key]->value = -1;
+        table->table[hash_key]->key = -1;
         table->table[hash_key]->table_name = NULL;
 
         return;
@@ -117,13 +114,12 @@ void remove_hash(hash_table *table, hash_table *table2, int value)
     if (table2->table[hash_2_key]->value == value)
     {
         // Key don't exist
-        printf("Key exist\n");
         table2->table[hash_2_key]->value = -1;
+        table2->table[hash_2_key]->key = -1;
         table2->table[hash_2_key]->table_name = NULL;
 
         return;
     }
-    printf("Key don't exist, get\n");
     return;
 }
 
@@ -135,21 +131,92 @@ void print_hash(hash_table *table)
     }
 }
 
-dict **get_ordered_hashs(hash_table *table, hash_table *table2)
+int *get_ordered_hashs(hash_table *table, hash_table *table2)
 {
-    dict **ordered_hash = malloc(sizeof(dict *) * table->size * 2);
+    int *ordered_hash = malloc(sizeof(int *) * table->size * 2);
 
-    int j = 11;
+    // This is very confusing, bc I didn't want to repeat the key of a dictionary because the index of the vector is already the key
+    // In the loops i'm saving the value
+    int c = 0;
     for (int i = 0; i < table->size; i++)
     {
-        ordered_hash[i] = table->table[i];
+        if (table->table[i]->value != -1)
+        {
+            ordered_hash[c] = table->table[i]->value;
+            c++;
+        }
     }
 
-    for (int i = 0; i < count; i++)
+    for (int i = 0; i < table2->size; i++)
     {
-        /* code */
+        if (table2->table[i]->value != -1)
+        {
+            ordered_hash[c] = table2->table[i]->value;
+            c++;
+        }
     }
-    
+
+    // Print vector
+    // for (int i = 0; i < c; i++)
+    // {
+    //     printf("Values before sort: fake key:    %d\n", i);
+    //     printf("                  : actual key:  %d\n", ordered_hash[i]);
+    //     printf("                  : table value: %d\n", ordered_hash[i] > 10 ? table2->table[ordered_hash[i] - 11]->value : table->table[ordered_hash[i]]->value);
+    //     printf("                  : table name:  %s\n", ordered_hash[i] > 10 ? table2->table[ordered_hash[i] - 11]->table_name : table->table[ordered_hash[i]]->table_name);
+    // }
+
+    // Quick sort
+    quick_sort(ordered_hash, 0, c - 1);
+
+    // Print vector
+    for (int i = 0; i < c; i++)
+    {
+        // Get hash key
+        dict *d = get_hash(table, table2, ordered_hash[i]);
+
+        // print like value, table name, table value
+        printf("%d,%s,%d\n", d->value, d->table_name, d->key);
+    }
 
     return ordered_hash;
+}
+
+void quick_sort(int *ordered_hash, int left, int right)
+{
+    int i = left, j = right;
+    int tmp;
+    int pivot = ordered_hash[(left + right) / 2];
+
+    /* partition */
+    while (i <= j)
+    {
+        while (ordered_hash[i] < pivot)
+            i++;
+        while (ordered_hash[j] > pivot)
+            j--;
+        if (i <= j)
+        {
+            tmp = ordered_hash[i];
+            ordered_hash[i] = ordered_hash[j];
+            ordered_hash[j] = tmp;
+            i++;
+            j--;
+        }
+    };
+
+    /* recursion */
+    if (left < j)
+        quick_sort(ordered_hash, left, j);
+    if (i < right)
+        quick_sort(ordered_hash, i, right);
+}
+
+void destroy_hash_table(hash_table *table)
+{
+    for (int i = 0; i < table->size; i++)
+    {
+        free(table->table[i]);
+    }
+    free(table->table);
+    free(table);
 }

@@ -28,7 +28,6 @@ int main()
         {
             value = atoi(value_tmp);
         }
-        printf("Key: %s, Value: %d\n", key, value);
 
         // See what command it is
         if (strcmp(key, "i") == 0)
@@ -44,10 +43,9 @@ int main()
         }
         else if (strcmp(key, "p") == 0)
         {
-            printf("T1:\n");
-            print_hash(t1);
-            printf("T2:\n");
-            print_hash(t2);
+            get_ordered_hashs(t1, t2);
+
+            return 0;
         }
         else
         {
@@ -55,6 +53,11 @@ int main()
             break;
         }
     }
+    // Prints the hash tables
+    get_ordered_hashs(t1, t2);
+    destroy_hash_table(t1);
+    destroy_hash_table(t2);
+    free(line);
 
     return 0;
 }
