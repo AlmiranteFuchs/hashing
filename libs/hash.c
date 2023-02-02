@@ -76,8 +76,9 @@ void insert_hash(hash_table *table, hash_table *table2, int value)
         table->table[hash_key]->key = hash_key;
         table->table[hash_key]->table_name = "T1";
     }
-    else
+    else 
     {
+        // cuckoo insert
         // get value on t1
         int old_value = table->table[hash_key]->value;
         int old_hash_2_key = hash_2(old_value, table->size);
@@ -100,7 +101,7 @@ void remove_hash(hash_table *table, hash_table *table2, int value)
     int hash_key = hash(value, table->size);
     int hash_2_key = hash_2(value, table->size);
 
-    // check if the key on the second table is empty
+    // check if the key on the first table is empty
     if (table->table[hash_key]->value == value)
     {
         // Key don't exist
@@ -111,6 +112,7 @@ void remove_hash(hash_table *table, hash_table *table2, int value)
         return;
     }
 
+    // check if the key on the second table is empty
     if (table2->table[hash_2_key]->value == value)
     {
         // Key don't exist
