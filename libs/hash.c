@@ -125,13 +125,6 @@ void remove_hash(hash_table *table, hash_table *table2, int value)
     return;
 }
 
-void print_hash(hash_table *table)
-{
-    for (int i = 0; i < table->size; i++)
-    {
-        printf("%d: %d - %s\n", i, table->table[i]->value, table->table[i]->table_name);
-    }
-}
 
 int *get_ordered_hashs(hash_table *table, hash_table *table2)
 {
@@ -157,15 +150,6 @@ int *get_ordered_hashs(hash_table *table, hash_table *table2)
             c++;
         }
     }
-
-    // Print vector
-    // for (int i = 0; i < c; i++)
-    // {
-    //     printf("Values before sort: fake key:    %d\n", i);
-    //     printf("                  : actual key:  %d\n", ordered_hash[i]);
-    //     printf("                  : table value: %d\n", ordered_hash[i] > 10 ? table2->table[ordered_hash[i] - 11]->value : table->table[ordered_hash[i]]->value);
-    //     printf("                  : table name:  %s\n", ordered_hash[i] > 10 ? table2->table[ordered_hash[i] - 11]->table_name : table->table[ordered_hash[i]]->table_name);
-    // }
 
     // Quick sort
     quick_sort(ordered_hash, 0, c - 1);
