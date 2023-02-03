@@ -1,5 +1,5 @@
 // Main
-// Author: B. Fuchs
+// Author: B. Fuchs, M. Telles
 
 #include "libs/hash.h"
 #include <stdio.h>
